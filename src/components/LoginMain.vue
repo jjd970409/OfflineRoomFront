@@ -11,6 +11,7 @@
                 v-model="userId"
                 prepend-icon="mdi-account"
                 class="input-field"
+                :disabled="loading"
               ></v-text-field>
               <v-text-field
                 label="비밀번호"
@@ -18,19 +19,20 @@
                 type="password"
                 prepend-icon="mdi-lock"
                 class="input-field"
+                :disabled="loading"
               ></v-text-field>
-              <v-btn color="primary" @click="login" class="login-button mt-4">
+              <v-btn color="primary" @click="login" class="login-button mt-4" :loading="loading">
                 로그인
               </v-btn>
             </v-card-text>
             <v-card-actions class="justify-center">
-            <v-btn class="ma-2" outlined color="primary" @click="naverLogin">
+            <v-btn class="ma-2" outlined color="primary" @click="naverLogin" :disabled="loading">
               <img src="@/assets/login_naver.png" style="max-width: 50px; max-height: 50px;" />
             </v-btn>
-            <v-btn class="ma-2" outlined color="yellow" @click="kakaoLogin">
+            <v-btn class="ma-2" outlined color="yellow" @click="kakaoLogin" :disabled="loading">
               <img src="@/assets/login_kakao.png" style="max-width: 50px; max-height: 50px;" />
             </v-btn>
-            <v-btn text>회원가입</v-btn>
+            <v-btn text :disabled="loading" @click="account_create">회원가입</v-btn>
             <v-btn text @click="testProxy">Proxy Test</v-btn>
           </v-card-actions>
           </v-card>
@@ -46,10 +48,15 @@ export default {
     return {
       userId: '',
       password: '',
+      loading: false, // 로딩 상태 추가
+      errorMessage: '', // 에러 메시지 추가
     };
   },
    methods: {
     login() {
+      this.loading = true;
+      this.errorMessage = ''; 
+
       this.$axios
         .post('http://localhost:8080/api/login', { // <-- 상대 경로 '/login' 사용 (pathRewrite 설정에 따라)
           userId: this.userId,
@@ -77,8 +84,15 @@ export default {
                     // 기타 에러 처리
                     alert("로그인 중 오류가 발생했습니다.");
                     console.error(error); // 자세한 에러 정보 출력
+                    this.$router.push('/');
                 }
-        });
+        }).finally(() => {
+        this.loading = false; // 요청 완료 후 (성공/실패 모두) 로딩 종료
+      });
+    },
+
+    account_create(){
+         this.$router.push('/signup');
     },
 
     testProxy() {

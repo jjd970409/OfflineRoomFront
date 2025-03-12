@@ -9,36 +9,38 @@
       <v-spacer></v-spacer>
       <v-btn text v-if="!isLoggedIn" @click="goToLogin">로그인</v-btn>
         <v-btn text v-if="!isLoggedIn" @click="goToRegister">회원가입</v-btn>
-        <v-menu v-if="isLoggedIn" bottom left>
-          <template v-slot:activator="{ on, attrs }">
+        <v-menu v-show="isLoggedIn" bottom left :close-on-content-click="false">
+          <template v-slot:activator="{ props }">
             <v-btn
-              color="primary"
+              color="white"
               dark
-              v-bind="attrs"
+              v-bind="props"
               v-on="on"
               text
             >
-             <v-icon left>mdi-account-circle</v-icon>
+             <v-icon left color="white">mdi-account-circle</v-icon>
               {{ username }}
             </v-btn>
           </template>
 
           <v-list>
             <v-list-item @click="goToMyPage">
-              <v-list-item-title>마이페이지</v-list-item-title>
+              <v-list-item-content>
+                <v-list-item-title>마이페이지</v-list-item-title>
+              </v-list-item-content>
             </v-list-item>
             <v-list-item @click="logout">
-              <v-list-item-title>로그아웃</v-list-item-title>
+              <v-list-item-content>
+                <v-list-item-title>로그아웃</v-list-item-title>
+              </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-menu>
-
-
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
       <v-list>
-        <v-list-item link to="/">
+        <v-list-item link :to="{ path: '/' }" exact-active>
           <v-list-item-icon>
             <v-icon>mdi-home</v-icon>
           </v-list-item-icon>
@@ -46,7 +48,7 @@
             <v-list-item-title>홈</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link to="/review-list">
+        <v-list-item link :to="{ name : 'ReviewList'}">
           <v-list-item-icon>
             <v-icon>mdi-format-list-bulleted</v-icon>
           </v-list-item-icon>
@@ -54,7 +56,7 @@
             <v-list-item-title>리뷰 목록</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link to="/write-review" v-if="isLoggedIn">
+        <v-list-item link :to="{ name : 'WriteReview'}" v-if="isLoggedIn">
             <v-list-item-icon>
               <v-icon>mdi-pencil</v-icon>
             </v-list-item-icon>
@@ -62,20 +64,20 @@
               <v-list-item-title>리뷰 작성</v-list-item-title>
             </v-list-item-content>
         </v-list-item>
-        <v-list-item link to="/write-review" v-if="isLoggedIn">
+        <!-- <v-list-item link :to="{name: 'Statistics'}" v-if="isLoggedIn">
             <v-list-item-icon>
-              <v-icon>mdi-pencil</v-icon>
+              <v-icon>mdi-database</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title>테마별 통계</v-list-item-title>
             </v-list-item-content>
-        </v-list-item>
+        </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
 
     <v-main>
       <v-container>
-        <MainReviewList />  
+       <router-view></router-view>
       </v-container>
     </v-main>
 
@@ -86,36 +88,34 @@
 </template>
 
 <script>
-import MainReviewList from '@/components/main/MainReviewList.vue';
 
 export default {
   components:{
-    MainReviewList,
   },
   data() {
     return {
       drawer: true,  // 사이드 메뉴 열림/닫힘 상태
-      isLoggedIn: false, // 로그인 상태 (실제 로그인 로직에 따라 변경)
+      isLoggedIn: true, // 로그인 상태 (실제 로그인 로직에 따라 변경)
       username: '사용자', // 사용자 이름 (로그인 상태에 따라 변경)
 
     };
   },
   methods: {
     goToLogin() {
-        this.$router.push('/login');
+      this.$router.push({ name: 'Login' }); 
     },
-    goToRegister(){
-        this.$router.push('/register');
+    goToRegister() {
+      this.$router.push({ name: 'Register' }); 
     },
-    goToMyPage(){
-        this.$router.push('/mypage')
+    goToMyPage() {
+      this.$router.push({ name: 'MyPage' }); 
     },
     logout() {
-      // 로그아웃 로직 (예: 토큰 삭제, 상태 변경)
+      localStorage.removeItem('token'); // 토큰 삭제
+      localStorage.removeItem('username');
       this.isLoggedIn = false;
       this.username = '';
-       this.$router.push('/login');
-      // ...
+      this.$router.push({ name: 'Login' });
     },
   },
     created() { //created 훅에서 localStorage, vuex등을 이용해 로그인 여부 확인
