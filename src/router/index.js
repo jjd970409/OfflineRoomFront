@@ -45,12 +45,12 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   if (to.meta.requiresAuth && !localStorage.getItem('token')) { // 토큰 확인
-//     next('/login'); // 로그인 페이지로 리디렉션
-//   } else {
-//     next(); // 다음 훅으로 이동
-//   }
-// });
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !localStorage.getItem('token')) { // 토큰 확인
+    next('/login'); // 로그인 페이지로 리디렉션
+   } else {
+     next(); // 다음 훅으로 이동
+   }
+ });
 
 export default router;

@@ -32,7 +32,7 @@
             <v-btn class="ma-2" outlined color="yellow" @click="kakaoLogin" :disabled="loading">
               <img src="@/assets/login_kakao.png" style="max-width: 50px; max-height: 50px;" />
             </v-btn>
-            <v-btn text :disabled="loading" @click="account_create">회원가입</v-btn>
+            <v-btn text :disabled="loading" @click="account_create()">회원가입</v-btn>
             <v-btn text @click="testProxy">Proxy Test</v-btn>
           </v-card-actions>
           </v-card>
@@ -65,9 +65,11 @@ export default {
        .then((response) => {
           // 로그인 성공 처리
           console.log('로그인 성공:', response.data);
-          // 사용자 인증 정보 저장 (예: localStorage, Vuex)
-          // ...
-          // 메인 페이지로 이동
+          
+          // localStorage에 저장
+          localStorage.setItem('accessToken', response.data.accessToken);
+
+          alert(response.data.response_msg);
           this.$router.push('/');
         })
         .catch((error) => {
@@ -84,7 +86,7 @@ export default {
                     // 기타 에러 처리
                     alert("로그인 중 오류가 발생했습니다.");
                     console.error(error); // 자세한 에러 정보 출력
-                    this.$router.push('/');
+                    // this.$router.push('/');
                 }
         }).finally(() => {
         this.loading = false; // 요청 완료 후 (성공/실패 모두) 로딩 종료

@@ -95,8 +95,8 @@ export default {
   data() {
     return {
       drawer: true,  // 사이드 메뉴 열림/닫힘 상태
-      isLoggedIn: true, // 로그인 상태 (실제 로그인 로직에 따라 변경)
-      username: '사용자', // 사용자 이름 (로그인 상태에 따라 변경)
+      isLoggedIn: false, // 로그인 상태 (실제 로그인 로직에 따라 변경)
+      username: '', // 사용자 이름 (로그인 상태에 따라 변경)
 
     };
   },
@@ -117,15 +117,33 @@ export default {
       this.username = '';
       this.$router.push({ name: 'Login' });
     },
+    async fetchUserInfo(token) { // async 추가
+      try {
+        const response = await this.$axios.get('http://localhost:8080/api/userinfo', { // /api/userinfo 엔드포인트 (서버에 구현 필요)
+          headers: {
+            Authorization: `Bearer ${token}`, // Bearer 토큰 방식
+          },
+          withCredentials: true,
+        });
+        
+        localStorage.setItem('username',response.data.username);
+        localStorage.setItem('id',response.data.id);
+        
+      } catch (error) {
+        console.error("사용자 정보 가져오기 실패:", error);
+        // 에러 처리 (예: 토큰 만료 시 로그아웃)
+        this.logout();
+      }
+    },
   },
     created() { //created 훅에서 localStorage, vuex등을 이용해 로그인 여부 확인
         // 예시: localStorage에서 토큰 확인
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         if (token) {
             this.isLoggedIn = true;
             // 사용자 정보를 가져오는 로직 (예: API 호출)
-            // this.fetchUserInfo(token);
-             this.username = localStorage.getItem('username') || '사용자'; // 로컬 스토리지에서 사용자 이름 가져오기
+            this.fetchUserInfo(token);
+            this.username = localStorage.getItem('username'); 
         }
     },
 
